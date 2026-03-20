@@ -1,9 +1,9 @@
-name: Bot Auto Mutasi Video
+name: Neuro-Predator-V5-Auto
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Jalan otomatis setiap 6 jam
-  workflow_dispatch: # Bisa dijalankan manual klik tombol
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,19 +12,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Python & FFmpeg
+      - name: Setup System
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          pip install requests
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
 
-      - name: Run Bot
+      - name: Run Engine
+        env:
+          FB_COOKIES_JSON: ${{ secrets.FB_COOKIES_JSON }}
         run: python bot.py
 
-      - name: Commit & Push Hasil
+      - name: Save Memory
         run: |
-          git config --global user.name "Bot-Action"
+          git config --global user.name "V5-Bot"
           git config --global user.email "bot@github.com"
-          git add ready_to_upload/
-          git commit -m "Update video siap upload" || exit 0
+          git add history.txt
+          git commit -m "Update history [skip ci]" || exit 0
           git push
+          
