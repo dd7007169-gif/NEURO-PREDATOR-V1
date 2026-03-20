@@ -1,0 +1,30 @@
+name: Bot Auto Mutasi Video
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Jalan otomatis setiap 6 jam
+  workflow_dispatch: # Bisa dijalankan manual klik tombol
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Python & FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install requests
+
+      - name: Run Bot
+        run: python bot.py
+
+      - name: Commit & Push Hasil
+        run: |
+          git config --global user.name "Bot-Action"
+          git config --global user.email "bot@github.com"
+          git add ready_to_upload/
+          git commit -m "Update video siap upload" || exit 0
+          git push
