@@ -1,0 +1,35 @@
+name: Bot Monster V8 Ultra - Auto Path
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Requirements
+      run: |
+        pip install cloudscraper beautifulsoup4
+
+    - name: Run Bot Monster
+      run: |
+        # Cari di mana file bot_mulung.py berada dan masuk ke foldernya
+        BOT_FILE=$(find . -name "bot_mulung.py" | head -n 1)
+        if [ -z "$BOT_FILE" ]; then
+          echo "ERROR: File bot_mulung.py tidak ditemukan!"
+          exit 1
+        fi
+        echo "File ditemukan di: $BOT_FILE"
+        # Jalankan langsung dari lokasinya
+        python "$BOT_FILE"
