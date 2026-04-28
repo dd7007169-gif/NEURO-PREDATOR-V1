@@ -1,0 +1,20 @@
+name: MesinUangJohn
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Jalan tiap 30 menit
+  workflow_dispatch: # Supaya bisa diklik manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil Kode
+        uses: actions/checkout@v2
+      - name: Setel Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Instal Bahan
+        run: pip install requests
+      - name: Jalankan Bot
+        run: python bot_mulung.py
