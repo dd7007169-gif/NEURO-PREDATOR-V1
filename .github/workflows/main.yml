@@ -1,0 +1,26 @@
+name: Bot Monster V8 Ultra
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Supaya bisa kamu jalankan manual lewat tombol 'Run workflow'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Requirements
+      run: |
+        pip install cloudscraper beautifulsoup4
+
+    - name: Run Bot
+      run: python bot_mulung.py # Pastikan nama ini sama dengan file di bawah
