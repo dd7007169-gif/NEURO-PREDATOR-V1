@@ -1,8 +1,8 @@
 name: MesinUangJohn
 on:
   schedule:
-    - cron: '*/30 * * * *' # Jalan tiap 30 menit
-  workflow_dispatch: # Supaya bisa diklik manual
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   build:
