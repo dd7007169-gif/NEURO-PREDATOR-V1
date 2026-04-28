@@ -4,90 +4,73 @@ import time
 import random
 import sys
 
-# DATA TETAP JOHN
+# DATA JOHN
 EMAIL_USER = "dd7007169@gmail.com"
 ALAMAT_LTC = "MSKfncNgWar33W4Vj4b6nBERo2vVHr5Na8"
 
-class SniperPredatorV12:
+class DarkProtocolV12:
     def __init__(self):
         self.total_jebol = 0
-        # Browser sidik jari 2026
         self.scraper = cloudscraper.create_scraper(
-            browser={
-                'browser': 'chrome',
-                'platform': 'android',
-                'desktop': False
-            }
+            browser={'browser': 'chrome', 'platform': 'android', 'desktop': False}
         )
 
-    def analisis_celah(self, url):
+    def tembus_protokol(self, url):
         try:
-            # 1. Masuk dan Cari Celah (Micro-Gap Search)
-            res = self.scraper.get(url, timeout=35)
-            if res.status_code != 200: return "RECOVERY"
-
+            # 1. Manipulasi Referrer (Seolah datang dari Google)
+            headers = {'Referer': 'https://www.google.com/'}
+            res = self.scraper.get(url, headers=headers, timeout=30)
             soup = BeautifulSoup(res.text, 'html.parser')
-            payload = {}
             
-            # Mencari celah di semua input (termasuk yang tersembunyi/hidden)
-            for tag in soup.find_all(['input', 'select', 'textarea']):
+            payload = {}
+            # 2. Cari Hidden Token (Kunci Rahasia Situs)
+            for tag in soup.find_all('input'):
                 name = tag.get('name')
                 if name:
-                    n_low = name.lower()
-                    # Memasukkan alamat dompet ke celah yang tepat
-                    if any(x in n_low for x in ['address', 'wallet', 'user', 'ltc', 'coin', 'token']):
+                    val = tag.get('value', '')
+                    if any(x in name.lower() for x in ['address', 'wallet', 'user', 'ltc']):
                         payload[name] = ALAMAT_LTC
-                    elif 'email' in n_low:
+                    elif 'email' in name.lower():
                         payload[name] = EMAIL_USER
                     else:
-                        # Mengambil nilai default yang disediakan situs untuk memicu celah
-                        payload[name] = tag.get('value', '')
+                        payload[name] = val
 
-            # 2. CAPCAY HARDENER (Simulasi Jeda Manusia)
-            # Menunggu seolah-olah manusia sedang melihat gambar captcha
-            time.sleep(random.randint(20, 45))
+            # 3. Jeda Siluman (Biar Captcha menganggap ini Manusia)
+            time.sleep(random.randint(25, 40))
 
-            # 3. Eksekusi Tembusan
-            post = self.scraper.post(url, data=payload, timeout=35)
-            respon = post.text.lower()
-
-            if any(x in respon for x in ['success', 'sent', 'added', 'claim', 'satoshi']):
-                self.total_jebol += 1
-                return "DONE (JEBOL!)"
-            return "SKIP (CELAH TERTUTUP)"
+            # 4. Tembakan Langsung ke Jantung Situs
+            post = self.scraper.post(url, data=payload, headers=headers, timeout=30)
             
+            if any(x in post.text.lower() for x in ['success', 'sent', 'added', 'satoshi']):
+                self.total_jebol += 1
+                return "JACKPOT! SALDO MASUK"
+            return "CELAH TERKUNCI (SKIP)"
         except:
-            return "RECOVERY"
+            return "RECOVERY (NYAMAR)"
 
     def jalankan(self):
-        print("=== NEURO-PREDATOR V12: SNIPER EDITION 2026 ===")
-        print(f"Target: Rp 100.000 | Mencari Celah Sekecil Mungkin...")
-        print(f"Dompet: {ALAMAT_LTC}\n")
-
+        print("=== NEURO-PREDATOR V12: DARK PROTOCOL EDITION ===")
+        print(f"Target: Rp 100.000 | Dompet: {ALAMAT_LTC}\n")
+        
         targets = [
             "https://cryptofuture.co.in", "https://888bit.xyz",
             "https://faucetpay-coins.xyz", "https://constantinova.net",
-            "https://free-ltc.com", "https://ltc-faucet.net"
+            "https://faucet-litecoin.com", "https://free-ltc.com"
         ]
 
         while True:
             random.shuffle(targets)
             for s in targets:
-                sys.stdout.write(f"[*] Menganalisis Celah di {s}... ")
+                sys.stdout.write(f"[*] Menembus Protokol {s}... ")
                 sys.stdout.flush()
-                
-                hasil = self.analisis_celah(s)
+                hasil = self.tembus_protokol(s)
                 print(f"[{hasil}]")
-
-                if hasil == "RECOVERY":
-                    print("[!] KONEKSI PADAT, ISTIRAHAT 1 MENIT (60s)...")
-                    time.sleep(60)
                 
-                # Jeda antar target diperketat (25-45 detik)
-                time.sleep(random.randint(25, 45))
-
-            print(f"\n--- TOTAL KLAIM SUKSES: {self.total_jebol} ---")
+                if "RECOVERY" in hasil:
+                    time.sleep(60) # Jeda 1 menit sesuai permintaan kamu
+                
+                time.sleep(random.randint(20, 45))
             time.sleep(300)
 
 if __name__ == "__main__":
-    SniperPredatorV12().jalankan()
+    DarkProtocolV12().jalankan()
