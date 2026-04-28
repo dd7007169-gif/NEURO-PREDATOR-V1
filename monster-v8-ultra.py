@@ -5,63 +5,89 @@ import random
 import sys
 
 # DATA TETAP JOHN
-EMAIL_USER = "dd7007169@gmail.com" 
+EMAIL_USER = "dd7007169@gmail.com"
 ALAMAT_LTC = "MSKfncNgWar33W4Vj4b6nBERo2vVHr5Na8"
 
-class AutoCuanV12:
+class SniperPredatorV12:
     def __init__(self):
-        self.total = 0
+        self.total_jebol = 0
+        # Browser sidik jari 2026
         self.scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'android', 'desktop': False}
+            browser={
+                'browser': 'chrome',
+                'platform': 'android',
+                'desktop': False
+            }
         )
-        self.targets = [
-            "https://faucetpay-coins.xyz", "https://cryptofuture.co.in",
-            "https://888bit.xyz", "https://constantinova.net"
-        ]
 
-    def serang_dan_tarik(self, url):
+    def analisis_celah(self, url):
         try:
-            # 1. KLAIM SALDO
-            res = self.scraper.get(url, timeout=30)
+            # 1. Masuk dan Cari Celah (Micro-Gap Search)
+            res = self.scraper.get(url, timeout=35)
+            if res.status_code != 200: return "RECOVERY"
+
             soup = BeautifulSoup(res.text, 'html.parser')
             payload = {}
-            for tag in soup.find_all('input'):
+            
+            # Mencari celah di semua input (termasuk yang tersembunyi/hidden)
+            for tag in soup.find_all(['input', 'select', 'textarea']):
                 name = tag.get('name')
                 if name:
-                    if any(x in name.lower() for x in ['address', 'wallet', 'user', 'ltc']):
+                    n_low = name.lower()
+                    # Memasukkan alamat dompet ke celah yang tepat
+                    if any(x in n_low for x in ['address', 'wallet', 'user', 'ltc', 'coin', 'token']):
                         payload[name] = ALAMAT_LTC
-                    elif 'email' in name.lower():
+                    elif 'email' in n_low:
                         payload[name] = EMAIL_USER
                     else:
+                        # Mengambil nilai default yang disediakan situs untuk memicu celah
                         payload[name] = tag.get('value', '')
 
-            time.sleep(random.randint(20, 40))
-            post = self.scraper.post(url, data=payload, timeout=30)
+            # 2. CAPCAY HARDENER (Simulasi Jeda Manusia)
+            # Menunggu seolah-olah manusia sedang melihat gambar captcha
+            time.sleep(random.randint(20, 45))
+
+            # 3. Eksekusi Tembusan
+            post = self.scraper.post(url, data=payload, timeout=35)
+            respon = post.text.lower()
+
+            if any(x in respon for x in ['success', 'sent', 'added', 'claim', 'satoshi']):
+                self.total_jebol += 1
+                return "DONE (JEBOL!)"
+            return "SKIP (CELAH TERTUTUP)"
             
-            # 2. FITUR BARU: CARI TOMBOL WITHDRAW OTOMATIS
-            if "withdraw" in post.text.lower():
-                # Jika ada tombol tarik saldo, bot akan otomatis klik
-                self.scraper.post(url + "/withdraw", data=payload)
-                return "DONE (SALDO TERKIRIM KE FP)"
-            
-            if "sent" in post.text.lower() or "satoshi" in post.text.lower():
-                self.total += 1
-                return "DONE (INSTANT PAY)"
-            
-            return "SUKSES (MASUK SALDO INTERNAL)"
         except:
-            return "KONEKSI PADAT"
+            return "RECOVERY"
 
     def jalankan(self):
-        print("=== NEURO-PREDATOR V12: AUTO-WITHDRAW EDITION ===")
+        print("=== NEURO-PREDATOR V12: SNIPER EDITION 2026 ===")
+        print(f"Target: Rp 100.000 | Mencari Celah Sekecil Mungkin...")
+        print(f"Dompet: {ALAMAT_LTC}\n")
+
+        targets = [
+            "https://cryptofuture.co.in", "https://888bit.xyz",
+            "https://faucetpay-coins.xyz", "https://constantinova.net",
+            "https://free-ltc.com", "https://ltc-faucet.net"
+        ]
+
         while True:
-            for s in self.targets:
-                sys.stdout.write(f"[*] Menyerang {s}... ")
+            random.shuffle(targets)
+            for s in targets:
+                sys.stdout.write(f"[*] Menganalisis Celah di {s}... ")
                 sys.stdout.flush()
-                hasil = self.serang_dan_tarik(s)
+                
+                hasil = self.analisis_celah(s)
                 print(f"[{hasil}]")
-                time.sleep(random.randint(60, 100))
-            time.sleep(600)
+
+                if hasil == "RECOVERY":
+                    print("[!] KONEKSI PADAT, ISTIRAHAT 1 MENIT (60s)...")
+                    time.sleep(60)
+                
+                # Jeda antar target diperketat (25-45 detik)
+                time.sleep(random.randint(25, 45))
+
+            print(f"\n--- TOTAL KLAIM SUKSES: {self.total_jebol} ---")
+            time.sleep(300)
 
 if __name__ == "__main__":
-    AutoCuanV12().jalankan()
+    SniperPredatorV12().jalankan()
