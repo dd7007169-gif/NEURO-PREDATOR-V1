@@ -1,0 +1,37 @@
+name: NEURO-PREDICTOR-V1-RUNNER
+
+on:
+  workflow_dispatch: # Supaya Bapak bisa klik "Run" manual kapan saja
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Kode
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instal Alat Tempur (Chrome & Library)
+        run: |
+          pip install playwright yt-dlp fake-useragent requests
+          playwright install chromium
+          playwright install-deps
+
+      - name: Eksekusi Bot Predator
+        run: python bot.py
+        env:
+          # Jika Bapak pakai Secret, masukkan di sini
+          FB_COOKIES: ${{ secrets.FB_COOKIES }}
+
+      - name: 📸 SELAMATKAN FOTO KESALAHAN (Jika Error)
+        if: failure() || always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Laporan-Kesalahan-Visual
+          path: error_logs/ # Folder tempat foto screenshot tadi
+          retention-days: 1
