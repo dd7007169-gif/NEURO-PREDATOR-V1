@@ -1,4 +1,4 @@
-name: PREDATOR-REVOLUTION-PRO-V6
+name: ULTRA-PREDATOR-V7
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Alat & Browser
+      - name: Install FFmpeg & Browser
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
@@ -23,7 +23,8 @@ jobs:
           playwright install chromium
           playwright install-deps
 
-      - name: Eksekusi Misi
+      - name: Eksekusi Misi Utama
         env:
-          COOKIE_HEX: ${{ secrets.COOKIE_HEX }}
+          # GANTI NAMA SECRETS DI GITHUB MENJADI: KUNCI_PREDATOR
+          KUNCI_PREDATOR: ${{ secrets.KUNCI_PREDATOR }}
         run: python bot.py
