@@ -3,139 +3,97 @@ from datetime import datetime
 from playwright.sync_api import sync_playwright
 from yt_dlp import YoutubeDL
 
-def ghost_log(msg):
-    print(f"🛰️  [PREDATOR-V6-FULL] {datetime.now().strftime('%H:%M:%S')} - {msg}")
+def predator_log(msg):
+    print(f"🛰️  [ULTRA-PREDATOR-V7] {datetime.now().strftime('%H:%M:%S')} - {msg}")
 
-# === ALAT 1: RADAR SOCKET & IP (DETEKSI JALUR) ===
-def radar_jalur():
-    ghost_log("📡 Membuka Radar Socket & Jalur IP...")
+# === ALAT 1: RADAR JALUR ===
+def cek_radar():
+    predator_log("📡 Memeriksa Jalur Socket...")
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip_internal = s.getsockname()[0]
         s.close()
-        info = requests.get('https://ipapi.co/json/', timeout=20).json()
-        print(f"    [!] INTERNAL IP : {ip_internal}")
-        print(f"    [!] PUBLIC IP   : {info.get('ip')}")
-        print(f"    [!] PROVIDER    : {info.get('org')}")
-        ghost_log("✅ Jalur Terverifikasi.")
-    except: ghost_log("⚠️ Radar IP terhalang, tetap lanjut.")
+        pub_ip = requests.get('https://api.ipify.org?format=json', timeout=10).json()
+        print(f"    [!] IP INTERNAL : {ip_internal}")
+        print(f"    [!] IP PUBLIK   : {pub_ip.get('ip')}")
+        predator_log("✅ Radar Berhasil Diverifikasi.")
+    except: predator_log("⚠️ Radar terganggu, lanjut misi.")
 
-# === ALAT 2: DEEP PINTEREST PENETRATOR (ANTI-404) ===
-def tembus_pinterest_v6(topik):
-    ghost_log(f"🕵️  Operasi Penembusan Pinterest: {topik}...")
+# === ALAT 2: DEEP PINTEREST (ANTI-404) ===
+def cari_target(topik):
+    predator_log(f"🕵️  Operasi Pinterest: {topik}...")
     try:
-        # Gunakan yt-dlp untuk bypass pencarian video Pinterest secara langsung
         with YoutubeDL({'quiet': True, 'no_warnings': True, 'extract_flat': True}) as ydl:
-            search_res = ydl.extract_info(f"https://id.pinterest.com/search/pins/?q={topik}", download=False)
-            if 'entries' in search_res:
-                # Ambil 1 video secara acak dari hasil pencarian
-                target = random.choice(search_res['entries'])
-                video_url = target['url']
-                ghost_log(f"✅ Target Terkunci: {video_url}")
-                return video_url
-    except Exception as e:
-        ghost_log(f"❌ Pinterest Gagal: {e}")
-    return None
+            res = ydl.extract_info(f"https://id.pinterest.com/search/pins/?q={topik}", download=False)
+            if 'entries' in res:
+                pilihan = random.choice(res['entries'])
+                return pilihan['url']
+    except: return None
 
-# === ALAT 3: REVOLUTION ENCODING (FFMPEG) ===
-def perkuat_video_v6(input_file):
-    output_file = "reels_predator.mp4"
-    ghost_log("🛠️  ENCODING: Mengubah Metadata & Hash Video...")
-    try:
-        # Menambah noise dan metadata unik agar tidak terdeteksi konten lama
-        cmd = [
-            'ffmpeg', '-i', input_file,
-            '-vf', f'eq=brightness={random.uniform(-0.02, 0.02)}:contrast=1.05,scale=720:1280',
-            '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28',
-            '-metadata', f'title=Rev_{random.getrandbits(32)}',
-            '-metadata', 'model=Samsung S24 Ultra', '-y', output_file
-        ]
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return output_file if os.path.exists(output_file) else input_file
-    except: return input_file
-
-# === ALAT 4: INJECT FB REELS (PRIVATE PROFILE) ===
-def tembak_fb_private(video_path, cookies):
-    ghost_log("🚀 Menembus Facebook via Injeksi Browser...")
+# === ALAT 3: INJEKSI FACEBOOK (HANYA COOKIES) ===
+def tembak_fb(video_path, cookies):
+    predator_log("🚀 Memulai Injeksi ke Profil Facebook...")
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # Samaran Mobile Sempurna
         context = browser.new_context(
             user_agent="Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
             viewport={'width': 412, 'height': 915},
-            has_touch=True,
-            locale="id-ID",
-            timezone_id="Asia/Makassar"
+            has_touch=True
         )
         context.add_cookies(cookies)
         page = context.new_page()
-
         try:
             page.goto("https://m.facebook.com/reels/create/", wait_until="networkidle", timeout=90000)
-            
             if "login" in page.url:
-                ghost_log("❌ COOKIES MATI! Silakan ambil Cookie baru di browser.")
+                predator_log("❌ COOKIES MATI! Ambil yang baru Pak John.")
                 return
-
-            ghost_log("📤 Menyuntikkan Video ke Server FB...")
+            predator_log("📤 Uploading Video...")
             page.set_input_files("input[type='file']", video_path)
-            time.sleep(30) # Tunggu render video
-
-            ghost_log("➡️ Klik Selanjutnya...")
+            time.sleep(35)
             page.get_by_text("Selanjutnya").click()
             time.sleep(5)
-
-            ghost_log("✍️ Mengetik Caption (Mode Manusia)...")
+            predator_log("✍️ Mengetik Caption...")
             page.wait_for_selector("textarea")
-            caption = f"Lucu bangeet! 😂🔥 #{random.randint(1000,9999)}"
-            for char in caption:
-                page.keyboard.type(char, delay=random.randint(100, 400))
-            
-            ghost_log("🚀 PUBLIKASIKAN SEKARANG!")
+            page.keyboard.type(f"Hiburan BAN JAK! 😂🔥 #{random.randint(1000,9999)}", delay=200)
+            predator_log("🚀 PUBLISH!")
             page.get_by_text("Bagikan Sekarang").click()
-            
             time.sleep(20)
-            ghost_log("✅ BERHASIL TOTAL! Misi Selesai.")
-            
+            predator_log("✅ MISI SUKSES!")
         except Exception as e:
-            ghost_log(f"⚠️ Kegagalan: {e}")
-            page.screenshot(path="failed_mission.png")
-        finally:
-            browser.close()
+            predator_log(f"⚠️ Gagal: {e}")
+        finally: browser.close()
 
-def engine_v6():
-    radar_jalur()
-    c_hex = os.getenv("COOKIE_HEX", "").strip()
-    if not c_hex: return ghost_log("❌ Secrets COOKIE_HEX Belum Diisi!")
+# === MESIN UTAMA ===
+def jalan_mesin():
+    cek_radar()
+    # AMBIL RAHASIA DENGAN NAMA BARU
+    kunci_raw = os.getenv("KUNCI_PREDATOR", "").strip()
+    # MEMBERSIHKAN KARAKTER ASING (HANYA AMBIL HEX)
+    kunci_bersih = "".join(filter(lambda x: x in "0123456789abcdefABCDEF", kunci_raw))
+    
+    if not kunci_bersih:
+        return predator_log("❌ ERROR: Secrets KUNCI_PREDATOR salah format!")
 
     try:
-        # Parser Cookie HEX ke format Playwright
-        raw_cookie = bytes.fromhex(c_hex).decode('utf-8')
+        decoded = bytes.fromhex(kunci_bersih).decode('utf-8')
         fb_cookies = []
-        for item in raw_cookie.split('; '):
+        for item in decoded.split('; '):
             if '=' in item:
-                name, value = item.split('=', 1)
-                fb_cookies.append({'name': name, 'value': value, 'domain': '.facebook.com', 'path': '/'})
+                n, v = item.split('=', 1)
+                fb_cookies.append({'name': n, 'value': v, 'domain': '.facebook.com', 'path': '/'})
 
-        # Jalankan Pencarian
-        video_url = tembus_pinterest_v6("funny animal shorts viral")
-        if video_url:
-            # Download Video
-            with YoutubeDL({'outtmpl': 'raw_video.mp4', 'quiet': True}) as ydl:
-                ydl.download([video_url])
-            
-            # Olah & Tembak
-            final_vid = perkuat_video_v6("raw_video.mp4")
-            tembak_fb_private(final_vid, fb_cookies)
-            
-            # Bersihkan Jejak
-            for f in ["raw_video.mp4", "reels_predator.mp4"]:
+        target_url = cari_target("funny animal viral")
+        if target_url:
+            with YoutubeDL({'outtmpl': 'vid_raw.mp4', 'quiet': True}) as ydl:
+                ydl.download([target_url])
+            # FFmpeg untuk ubah hash
+            subprocess.run(['ffmpeg', '-i', 'vid_raw.mp4', '-vf', 'scale=720:1280', '-y', 'vid_final.mp4'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            tembak_fb("vid_final.mp4", fb_cookies)
+            for f in ["vid_raw.mp4", "vid_final.mp4"]:
                 if os.path.exists(f): os.remove(f)
-        else:
-            ghost_log("❌ Gagal menembus Pinterest.")
-    except Exception as e:
-        ghost_log(f"⚠️ Masalah: {e}")
+        else: predator_log("❌ Pinterest Gagal.")
+    except Exception as e: predator_log(f"⚠️ Masalah: {e}")
 
 if __name__ == "__main__":
-    engine_v6()
+    jalan_mesin()
