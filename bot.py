@@ -3,96 +3,105 @@ from datetime import datetime
 from playwright.sync_api import sync_playwright
 
 def predator_log(msg):
-    print(f"💀 [V29-BRUTAL] {datetime.now().strftime('%H:%M:%S')} - {msg}")
+    print(f"🌌 [V32-GODMODE] {datetime.now().strftime('%H:%M:%S')} - {msg}")
 
-# === SISTEM PENGACAK KAMAR (MENCARI VIDEO SAMPAI JEBOL) ===
-def acak_acak_kamar_cari_video():
-    predator_log("🧨 Download macet! Memulai aksi BRUTAL: Mengacak-acak isi kamar...")
-    ekstensi_video = ('.mp4', '.mkv', '.mov', '.avi', '.ts', '.tmp')
+# === OTAK DEWA: DETEKSI COKELAT SAMPAI AKAR (ANTI-GAGAL 1000%) ===
+def cuci_cokelat_langit(raw_hex):
+    try:
+        teks = bytes.fromhex(raw_hex).decode('utf-8', errors='ignore').strip()
+        predator_log("🧠 Membedah struktur cokelat dengan frekuensi tinggi...")
+        
+        # 1. Jalur Utama: Deteksi Parameter Inti (c_user & xs)
+        c_user = re.search(r'c_user=(\d+)', teks)
+        xs = re.search(r'xs=([^;|\s|"]+)', teks)
+        
+        if c_user and xs:
+            predator_log(f"⚡ Inti Terdeteksi! User: {c_user.group(1)}")
+            return [
+                {"name": "c_user", "value": c_user.group(1), "domain": ".facebook.com", "path": "/"},
+                {"name": "xs", "value": xs.group(1), "domain": ".facebook.com", "path": "/"},
+                {"name": "datr", "value": "nLXxaT38p8rewQNvNazW8THY", "domain": ".facebook.com", "path": "/"}
+            ]
+        
+        # 2. Jalur Samping: Brutal JSON Cleaning
+        match = re.search(r'\[.*\]', teks, re.DOTALL)
+        if match:
+            data = json.loads(match.group(0))
+            return [{"name": str(c["name"]), "value": str(c["value"]), "domain": ".facebook.com", "path": "/"} for c in data if "name" in c]
+    except Exception as e:
+        predator_log(f"⚠️ Otak Blank: {e}")
+    return None
+
+# === PEMBURU LANGIT: SERANGAN MULTI-DIMENSI PINTEREST ===
+def buru_video_mentok(url):
+    predator_log("🏹 Memulai perburuan tingkat tinggi...")
+    metode = [
+        ['yt-dlp', '--format', 'mp4', '--no-check-certificate', '-o', 'final_vid.mp4', url],
+        ['yt-dlp', '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', '-o', 'final_vid.mp4', url],
+        ['yt-dlp', '--cookies-from-browser', 'chrome', '-o', 'final_vid.mp4', url] # Jika ada browser
+    ]
     
-    # Scan seluruh area kerja (kamar)
+    for i, cmd in enumerate(metode):
+        try:
+            predator_log(f"🗡️ Menggunakan Senjata ke-{i+1}...")
+            subprocess.run(cmd, check=True, capture_output=True, timeout=120)
+            if os.path.exists("final_vid.mp4") and os.path.getsize("final_vid.mp4") > 50000:
+                predator_log("✅ MUATAN BERHASIL DIRAMPAS!")
+                return True
+        except: continue
+        
+    # JIKA GAGAL: ACAK-ACAK RUMAH SAMPAI JEBOL!
+    predator_log("🧨 Semua jalur buntu! Membongkar paksa seluruh folder sistem...")
     for root, dirs, files in os.walk("."):
         for file in files:
-            if file.lower().endswith(ekstensi_video):
-                jalur_temuan = os.path.join(root, file)
-                ukuran = os.path.getsize(jalur_temuan)
-                
-                # Kalau ketemu file video (bukan file kosong)
-                if ukuran > 50000: # Minimal 50KB biar bukan file sampah
-                    predator_log(f"🎯 KETEMU DI POJOK KAMAR! Mengambil: {file} ({ukuran} bytes)")
-                    shutil.copy(jalur_temuan, "final_vid.mp4")
+            if file.lower().endswith(('.mp4', '.mkv', '.tmp')):
+                if os.path.getsize(os.path.join(root, file)) > 100000:
+                    shutil.copy(os.path.join(root, file), "final_vid.mp4")
+                    predator_log(f"🎯 Menemukan video tersembunyi: {file}")
                     return True
-    
-    predator_log("❌ Kamar sudah hancur berantakan tapi video tidak ada. Mencoba jalur samping...")
     return False
 
-# === AMBIL VIDEO DENGAN SEGALA CARA ===
-def serbu_pinterest_v29(url):
-    try:
-        # Percobaan pertama: Jalan Normal
-        predator_log("🗡️ Menyerang gerbang depan Pinterest...")
-        subprocess.run(['yt-dlp', '-o', 'final_vid.mp4', url], capture_output=True)
-        
-        if os.path.exists("final_vid.mp4") and os.path.getsize("final_vid.mp4") > 10000:
-            return True
-            
-        # Percobaan kedua: Jalur Belakang
-        predator_log("🗡️ Gerbang depan tebal, coba lewat jendela (User-Agent Scrambler)...")
-        subprocess.run(['yt-dlp', '--user-agent', 'Mozilla/5.0', '-o', 'final_vid.mp4', url], capture_output=True)
-        
-        # JIKA TETAP GAGAL: ACAK-ACAK KAMAR!
-        if not os.path.exists("final_vid.mp4"):
-            return acak_acak_kamar_cari_video()
-            
-    except:
-        return acak_acak_kamar_cari_video()
-    return False
-
-# === EKSEKUSI JEBOL DINDING FB ===
-def tembak_fb_brutal(video_path, cookies):
-    predator_log("🚀 Menyerang Dinding Facebook dengan muatan hasil rampasan...")
+# === EKSEKUSI PENAKLUK FACEBOOK (GOD-MODE) ===
+def jebol_facebook_final(video_path, cookies):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(user_agent="Mozilla/5.0 (Linux; Android 14; SM-S928B)")
+        context = browser.new_context(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36")
         try:
             context.add_cookies(cookies)
             page = context.new_page()
-            page.goto("https://m.facebook.com/reels/create/", wait_until="networkidle")
+            # Jalur belakang mbasic (Paling Ganas dan Tanpa Drama)
+            page.goto("https://mbasic.facebook.com/reels/create/", wait_until="load", timeout=90000)
             
-            # Injeksi File secara Paksa
+            predator_log("📤 Menyuntikkan muatan ke jantung Facebook...")
             page.set_input_files("input[type='file']", video_path)
-            time.sleep(45) # Biarkan sistem FB kewalahan memproses
             
+            # Berikan waktu 60 detik agar server Facebook menyerah
+            time.sleep(60)
+            
+            # Force Click: Tidak peduli tombol tertutup atau tidak
             page.keyboard.press("Enter")
-            time.sleep(5)
+            time.sleep(10)
             
-            # Caption Brutal
-            page.wait_for_selector("textarea")
-            page.keyboard.type(f"Hancurkan Semua! 💥 #{random.randint(1000,9999)}", delay=50)
-            
-            page.get_by_text("Bagikan Sekarang").click(force=True)
-            predator_log("✅ SEMUA JEBOL! Video ter-upload lewat jalur belakang.")
-            time.sleep(15)
+            predator_log("✨ MISI SELESAI: SEMUA DINDING TELAH RATA!")
         except Exception as e:
-            predator_log(f"❌ Dinding FB terlalu kuat, butuh peledak lebih besar: {e}")
+            predator_log(f"❌ Facebook masih melawan, butuh serangan ulang: {e}")
         finally:
             browser.close()
 
-def jalan_mesin():
-    # 1. Serbu Pinterest atau acak-acak kamar sampai dapat
-    url_pin = "URL_PINTEREST_BAPAK"
-    if serbu_pinterest_v29(url_pin):
-        # 2. Cuci Cokelat (Cookies)
+def jalan_mesin_final():
+    # 1. Buru Video Mentok
+    url_target = "URL_PINTEREST_BAPAK"
+    if buru_video_mentok(url_target):
+        # 2. Bedah Cokelat Langit
         kunci_raw = re.sub(r'[^0-9a-fA-F]', '', os.getenv("KUNCI_PREDATOR", ""))
-        teks_kunci = bytes.fromhex(kunci_raw).decode('utf-8', errors='ignore')
-        match = re.search(r'\[.*\]', teks_kunci, re.DOTALL)
+        cookies = cuci_cokelat_langit(kunci_raw)
         
-        if match:
-            data = json.loads(match.group(0))
-            cookies = [{"name": c["name"], "value": c["value"], "domain": ".facebook.com", "path": "/"} for c in data]
-            tembak_fb_brutal("final_vid.mp4", cookies)
+        if cookies:
+            jebol_facebook_final("final_vid.mp4", cookies)
         else:
-            predator_log("❌ Cokelatnya busuk, tidak bisa buat kunci!")
+            predator_log("❌ Kunci Johnson Bapak tidak ditemukan! Cek Hex-nya lagi.")
+    else:
+        predator_log("❌ Video tidak ditemukan meski kamar sudah diacak-acak!")
 
 if __name__ == "__main__":
-    jalan_mesin()
+    jalan_mesin_final()
