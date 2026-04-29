@@ -1,2 +1,4 @@
-cloudscraper
-beautifulsoup4
+playwright==1.42.0
+yt-dlp
+fake-useragent
+requests
