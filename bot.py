@@ -4,9 +4,8 @@ from playwright.sync_api import sync_playwright
 from yt_dlp import YoutubeDL
 
 def predator_log(msg):
-    print(f"🛰️  [ULTRA-PREDATOR-V7] {datetime.now().strftime('%H:%M:%S')} - {msg}")
+    print(f"🛰️  [ULTRA-PREDATOR-V8] {datetime.now().strftime('%H:%M:%S')} - {msg}")
 
-# === ALAT 1: RADAR JALUR ===
 def cek_radar():
     predator_log("📡 Memeriksa Jalur Socket...")
     try:
@@ -20,10 +19,10 @@ def cek_radar():
         predator_log("✅ Radar Berhasil Diverifikasi.")
     except: predator_log("⚠️ Radar terganggu, lanjut misi.")
 
-# === ALAT 2: DEEP PINTEREST (ANTI-404) ===
 def cari_target(topik):
     predator_log(f"🕵️  Operasi Pinterest: {topik}...")
     try:
+        # Menggunakan yt-dlp untuk menghindari error 404
         with YoutubeDL({'quiet': True, 'no_warnings': True, 'extract_flat': True}) as ydl:
             res = ydl.extract_info(f"https://id.pinterest.com/search/pins/?q={topik}", download=False)
             if 'entries' in res:
@@ -31,7 +30,6 @@ def cari_target(topik):
                 return pilihan['url']
     except: return None
 
-# === ALAT 3: INJEKSI FACEBOOK (HANYA COOKIES) ===
 def tembak_fb(video_path, cookies):
     predator_log("🚀 Memulai Injeksi ke Profil Facebook...")
     with sync_playwright() as p:
@@ -46,14 +44,14 @@ def tembak_fb(video_path, cookies):
         try:
             page.goto("https://m.facebook.com/reels/create/", wait_until="networkidle", timeout=90000)
             if "login" in page.url:
-                predator_log("❌ COOKIES MATI! Ambil yang baru Pak John.")
+                predator_log("❌ COOKIES MATI! Ambil yang baru dari browser Chrome HP.")
                 return
             predator_log("📤 Uploading Video...")
             page.set_input_files("input[type='file']", video_path)
-            time.sleep(35)
+            time.sleep(35) # Jeda upload
             page.get_by_text("Selanjutnya").click()
             time.sleep(5)
-            predator_log("✍️ Mengetik Caption...")
+            predator_log("✍️ Mengetik Caption (Mode Manusia)...")
             page.wait_for_selector("textarea")
             page.keyboard.type(f"Hiburan BAN JAK! 😂🔥 #{random.randint(1000,9999)}", delay=200)
             predator_log("🚀 PUBLISH!")
@@ -64,21 +62,21 @@ def tembak_fb(video_path, cookies):
             predator_log(f"⚠️ Gagal: {e}")
         finally: browser.close()
 
-# === MESIN UTAMA ===
 def jalan_mesin():
     cek_radar()
-    # AMBIL RAHASIA DENGAN NAMA BARU
     kunci_raw = os.getenv("KUNCI_PREDATOR", "").strip()
-    # MEMBERSIHKAN KARAKTER ASING (HANYA AMBIL HEX)
-    kunci_bersih = "".join(filter(lambda x: x in "0123456789abcdefABCDEF", kunci_raw))
+    # Filter karakter Hex agar fromhex() tidak error
+    kunci_bersih = "".join(filter(lambda x: x.lower() in "0123456789abcdef", kunci_raw))
     
-    if not kunci_bersih:
-        return predator_log("❌ ERROR: Secrets KUNCI_PREDATOR salah format!")
+    if not kunci_bersih or len(kunci_bersih) % 2 != 0:
+        return predator_log("❌ ERROR: KUNCI_PREDATOR tidak valid atau panjangnya ganjil!")
 
     try:
-        decoded = bytes.fromhex(kunci_bersih).decode('utf-8')
+        # Gunakan 'ignore' pada decode untuk menghindari error UTF-8
+        decoded = bytes.fromhex(kunci_bersih).decode('utf-8', errors='ignore')
         fb_cookies = []
-        for item in decoded.split('; '):
+        for item in decoded.split(';'):
+            item = item.strip()
             if '=' in item:
                 n, v = item.split('=', 1)
                 fb_cookies.append({'name': n, 'value': v, 'domain': '.facebook.com', 'path': '/'})
@@ -87,12 +85,13 @@ def jalan_mesin():
         if target_url:
             with YoutubeDL({'outtmpl': 'vid_raw.mp4', 'quiet': True}) as ydl:
                 ydl.download([target_url])
-            # FFmpeg untuk ubah hash
+            # FFmpeg untuk ubah sidik jari video
             subprocess.run(['ffmpeg', '-i', 'vid_raw.mp4', '-vf', 'scale=720:1280', '-y', 'vid_final.mp4'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             tembak_fb("vid_final.mp4", fb_cookies)
+            # Bersihkan jejak
             for f in ["vid_raw.mp4", "vid_final.mp4"]:
                 if os.path.exists(f): os.remove(f)
-        else: predator_log("❌ Pinterest Gagal.")
+        else: predator_log("❌ Pinterest Gagal mendapatkan link.")
     except Exception as e: predator_log(f"⚠️ Masalah: {e}")
 
 if __name__ == "__main__":
