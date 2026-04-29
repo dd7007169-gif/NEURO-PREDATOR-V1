@@ -19,111 +19,135 @@ def simpan_bukti_kesalahan(page, lokasi_error):
     # 2. Ambil Kode HTML (Struktur)
     with open(f"{folder}/source_{lokasi_error}_{waktu}.html", "w", encoding="utf-8") as f:
         f.write(page.content())
-    print(f"[{lokasi_error}] Bukti kesalahan disimpan di folder '{folder}'")
+    print(f"[!] BUKTI TERSEDIA: Cek folder '{folder}' untuk file error_{lokasi_error}.png")
 
 # === ALAT HUMAN CLICK ===
 def human_click(page, selector, nama_tombol):
     try:
-        element = page.wait_for_selector(selector, timeout=15000)
+        element = page.wait_for_selector(selector, timeout=20000)
+        element.scroll_into_view_if_needed()
         box = element.bounding_box()
-        x = box['x'] + box['width'] * random.uniform(0.2, 0.8)
-        y = box['y'] + box['height'] * random.uniform(0.2, 0.8)
-        page.mouse.move(x, y, steps=random.randint(10, 20))
+        # Titik klik acak agar tidak terdeteksi robot
+        x = box['x'] + box['width'] * random.uniform(0.3, 0.7)
+        y = box['y'] + box['height'] * random.uniform(0.3, 0.7)
+        page.mouse.move(x, y, steps=random.randint(15, 25))
         page.mouse.click(x, y)
+        time.sleep(random.uniform(2, 4))
     except Exception as e:
-        print(f"[ERROR] Gagal klik tombol: {nama_tombol}")
+        print(f"[ERROR] Tombol '{nama_tombol}' tidak ditemukan atau terhalang.")
         simpan_bukti_kesalahan(page, f"gagal_klik_{nama_tombol}")
         raise e
 
 # === SISTEM UTAMA INTEGRASI ===
 def eksekusi_predator_2026(pin_url, caption, cookies_fb):
     ua = UserAgent(platforms='mobile')
+    video_path = "predator_final.mp4"
     
-    # --- BAGIAN 1: DOWNLOAD PINTEREST (ALAT LENGKAP) ---
-    print("[*] Tahap 1: Mendownload Video Pinterest...")
+    # --- BAGIAN 1: DOWNLOAD PINTEREST ---
+    print("[*] TAHAP 1: Menembus Pinterest...")
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
-        'outtmpl': 'predator_final.%(ext)s',
+        'format': 'best',
+        'outtmpl': video_path,
         'quiet': True,
+        'no_warnings': True,
         'user_agent': ua.random
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([pin_url])
-        video_path = "predator_final.mp4"
+        if not os.path.exists(video_path):
+            raise Exception("File video tidak terunduh.")
+        print("[+] Download Berhasil!")
     except Exception as e:
-        print(f"[CRITICAL ERROR] Gagal di Pinterest: {e}")
+        print(f"[CRITICAL] Pinterest Gagal: {e}")
         return
 
-    # --- BAGIAN 2: UPLOAD FB (GOD MODE + AUDIT) ---
+    # --- BAGIAN 2: UPLOAD FB GOD MODE ---
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False, args=["--disable-blink-features=AutomationControlled"])
+        # Gunakan --disable-blink-features agar tidak terdeteksi bot
+        browser = p.chromium.launch(headless=True, args=["--disable-blink-features=AutomationControlled"])
         context = browser.new_context(
             user_agent=ua.random,
             viewport={'width': 393, 'height': 852},
             has_touch=True
         )
-        context.add_cookies(cookies_fb)
+        
+        # Masukkan Cookies
+        if cookies_fb:
+            context.add_cookies(cookies_fb)
+        
         page = context.new_page()
 
         try:
-            # Step 1: Terapi Beranda
-            print("[*] Tahap 2: Navigasi ke Facebook...")
+            print("[*] TAHAP 2: Penyamaran di Beranda FB...")
             page.goto("https://m.facebook.com/", wait_until="networkidle")
+            time.sleep(5) # Simulasi orang baca feed
             
-            # Step 2: Menuju Reels
-            print("[*] Tahap 3: Memasuki Menu Reels...")
+            print("[*] TAHAP 3: Masuk ke Menu Reels...")
             page.goto("https://m.facebook.com/reels/create/", wait_until="networkidle")
             
-            # Step 3: Input File
-            print("[*] Tahap 4: Mengunggah File...")
+            print("[*] TAHAP 4: Uploading File...")
+            # Sembunyikan deteksi file chooser
+            page.set_input_files("input[type='file']", video_path)
+            
+            # Tunggu proses render video (PENTING!)
+            print("[*] Menunggu video diproses sistem FB...")
+            time.sleep(15)
+
+            print("[*] TAHAP 5: Navigasi Tombol...")
+            human_click(page, "text=Selanjutnya", "Next_1")
+            
+            print("[*] TAHAP 6: Mengetik Caption (Human Style)...")
             try:
-                page.set_input_files("input[type='file']", video_path)
-            except Exception as e:
-                simpan_bukti_kesalahan(page, "gagal_input_file")
-                raise e
-
-            time.sleep(random.randint(8, 12))
-
-            # Step 4: Klik Selanjutnya
-            print("[*] Tahap 5: Menekan Selanjutnya...")
-            human_click(page, "text=Selanjutnya", "tombol_next_1")
-
-            # Step 5: Ketik Caption
-            print("[*] Tahap 6: Menulis Caption...")
-            try:
-                textarea = page.wait_for_selector("textarea")
+                # Cari textarea untuk caption
+                page.wait_for_selector("textarea")
+                page.focus("textarea")
                 for char in caption:
-                    textarea.type(char)
-                    time.sleep(random.uniform(0.05, 0.2))
-            except Exception as e:
-                simpan_bukti_kesalahan(page, "gagal_ketik_caption")
-                raise e
+                    page.keyboard.type(char)
+                    time.sleep(random.uniform(0.05, 0.15))
+            except:
+                print("[!] Gagal ketik caption, lanjut tanpa caption.")
 
-            # Step 6: Final Post
-            print("[***] Tahap 7: EKSEKUSI TERBITKAN!")
-            human_click(page, "text=Bagikan Sekarang", "tombol_publish")
-
-            # Tunggu konfirmasi
+            print("[***] TAHAP 7: FINAL PUBLISH!")
+            human_click(page, "text=Bagikan Sekarang", "Publish_Button")
+            
+            # Verifikasi Akhir
             page.wait_for_load_state("networkidle")
-            print("[SUCCESS] MISI BERHASIL!")
+            print("[SUCCESS] NEURO-PREDICTOR Berhasil Menyelesaikan Misi!")
 
         except Exception as e:
-            print(f"\n[!!!] TERJADI KESALAHAN FATAL: {e}")
-            # Letak kesalahan sudah otomatis tersimpan di folder error_logs
+            print(f"\n[!!!] MISI GAGAL: {e}")
+            simpan_bukti_kesalahan(page, "fatal_error")
         
         finally:
-            time.sleep(5)
             browser.close()
+            # Hapus video setelah upload agar hemat ruang
+            if os.path.exists(video_path):
+                os.remove(video_path)
 
-# Contoh Cara Menjalankan:
+# === KONFIGURASI OTOMATIS ===
 if __name__ == "__main__":
-    url_pin = "LINK_PINTEREST_BAPAK"
-    teks = "Nuyul jam tayang lancar jaya! #viral #reels"
-    # Cookies diambil dari extension 'EditThisCookie'
-    data_cookie = [
-        {'name': 'c_user', 'value': 'ID_BAPAK', 'domain': '.facebook.com', 'path': '/'},
-        {'name': 'xs', 'value': 'TOKEN_BAPAK', 'domain': '.facebook.com', 'path': '/'}
-    ]
+    # GANTI LINK INI SESUAI KEINGINAN
+    target_pin = "https://id.pinterest.com/pin/1132725518776637151/" 
+    caption_reels = "Predator-V1 Mode Aktif! #viral #reels #trending"
+
+    # Ambil Cookie dari GitHub Secrets atau Lokal
+    raw_cookies = os.getenv('FB_COOKIES')
     
-    eksekusi_predator_2026(url_pin, teks, data_cookie)
+    try:
+        if raw_cookies:
+            processed_cookies = json.loads(raw_cookies)
+            print("[+] Mengambil kunci dari Secrets.")
+        else:
+            # Cadangan jika di Termux (Isi manual di sini)
+            processed_cookies = [
+                {'name': 'c_user', 'value': 'ID_ANDA', 'domain': '.facebook.com', 'path': '/'},
+                {'name': 'xs', 'value': 'TOKEN_ANDA', 'domain': '.facebook.com', 'path': '/'}
+            ]
+            print("[!] Menggunakan Cookie manual.")
+    except Exception as e:
+        print(f"[ERROR] Format Cookie salah: {e}")
+        processed_cookies = []
+
+    # JALANKAN!
+    eksekusi_predator_2026(target_pin, caption_reels, processed_cookies)
