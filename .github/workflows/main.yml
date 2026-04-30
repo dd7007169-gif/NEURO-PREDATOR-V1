@@ -1,25 +1,31 @@
-# File konfigurasi YAML untuk bot hewan joget
-# (Opsional - kode asli tidak membaca ini, hanya sebagai dokumentasi)
+name: Bot Hewan Joget Dangdut
 
-bot:
-  nama: "Hewan Joget Dangdut"
-  versi: "1.0"
-  jumlah_video_per_hari: 5
-  max_duration: 15
-  timeout_generate: 900
-  timeout_upload: 300
-  max_retry: 3
-  retry_delay: 60
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # setiap 2 jam
+  workflow_dispatch:         # bisa manual
 
-folder:
-  video_ai_mentah: "./video_ai_mentah"
-  video_siap_upload: "./video_siap_upload"
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-log:
-  file: "bot_log.txt"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-facebook:
-  # Token dan Page ID diambil dari environment variable
-  token_env: "FB_TOKEN"
-  page_id_env: "FB_PAGE_ID"
-  api_version: "v19.0"
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install moviepy requests beautifulsoup4 yt-dlp librosa soundfile pyppeteer imageio[ffmpeg]
+
+      - name: Run bot
+        run: python bot_lengkap.py
