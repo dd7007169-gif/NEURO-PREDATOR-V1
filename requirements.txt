@@ -1,5 +1,6 @@
-playwright
-requests
-cloudscraper
-yt-dlp
-requests_toolbelt
+project_folder/
+├── gambar_hewan/          # Taruh file gambar kucing.jpg, anjing.jpg, dll
+├── musik_trending/        # Kosong, untuk nyimpen audio hasil download
+├── video_hasil/           # Kosong, untuk nyimpen hasil video jadi
+├── logs/                  # Kosong, buat nyimpen log
+└── bot_dangdut.py         # File kode utama
