@@ -1,25 +1,31 @@
-# ================= KONFIGURASI BOT HEWAN JOGET =================
+name: Jalankan Bot Hewan Joget
 
-# Pengaturan jumlah dan durasi video
-bot:
-  jumlah_video_per_hari: 5
-  max_duration: 15                  # detik per video
-  timeout_generate: 900             # 15 menit
-  timeout_upload: 300               # 5 menit
-  max_retry: 3
-  retry_delay: 60                   # detik antar percobaan
+on:
+  schedule:
+    - cron: '0 1 * * *'   # setiap hari jam 01:00 UTC
+  workflow_dispatch:      # biar bisa di-run manual dari GitHub
 
-# Folder penyimpanan sementara
-folders:
-  hasil_ai: "./video_ai_mentah"
-  siap_upload: "./video_siap_upload"
-
-# File log
-log_file: "bot_log.txt"
-
-# Kredensial Facebook (ambil dari environment variable demi keamanan)
-facebook:
-  token_env: "FB_TOKEN"             # nama variabel lingkungan
-  page_id_env: "FB_PAGE_ID"
-
-# ================================================================
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      
+    - name: Install ffmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      
+    - name: Jalankan bot
+      env:
+        FB_TOKEN: ${{ secrets.FB_TOKEN }}
+        FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+      run: python bot.py
